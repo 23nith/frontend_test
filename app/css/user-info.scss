@@ -11,6 +11,9 @@
 
   > .field {
     display: flex;
+    div {
+      display: inline;
+    }
   }
 
   > .field + .company {
@@ -36,6 +39,7 @@
   > .company > .name {
     font-size: 18px;
     font-weight: 600;
+    margin-top: 20px;
   }
 
   > .company > .catchphrase {
