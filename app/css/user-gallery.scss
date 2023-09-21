@@ -1,6 +1,23 @@
 .user-gallery {
   width: 100%;
 
+  > .test {
+    display: flex;
+    justify-content: space-between;
+    > div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      &.dropdowns {
+        width: 505px;
+        select {
+          padding: 5px;
+          width: 150px;
+        }
+      }
+    }
+  }
+
   > .items {
     display: grid;
     grid-template-columns: 1fr;
@@ -13,6 +30,6 @@
   }
 
   > .heading + .items {
-    margin-top: 32px;
+    margin-top: 100px;
   }
 }

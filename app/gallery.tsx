@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
@@ -20,11 +20,13 @@ const Gallery = ({ users }: GalleryProps) => {
   const [usersList, setUsersList] = useState(users);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortCategory, setSortCategory] = useState<string>("company");
+  const [sortDirection, setSortDirection] = useState("ascending");
 
   const handleModalOpen = (id: number) => {
     const user = usersList.find((item) => item.id === id) || null;
 
-    if(user) {
+    if (user) {
       setSelectedUser(user);
       setIsModalOpen(true);
     }
@@ -35,30 +37,142 @@ const Gallery = ({ users }: GalleryProps) => {
     setIsModalOpen(false);
   };
 
+  const handleChangeCategory = (e) => {
+    setSortCategory(e.target.value);
+    console.log("changed value: ", e.target.value);
+    console.log(e.target.value == "name");
+  };
+
+  const handleChangeDirection = (e) => {
+    console.log("direction changed: ", e.target.value);
+    setSortDirection(e.target.value);
+  };
+
+  const handleSort = () => {
+    let newUsersList = [...usersList];
+
+    if (sortDirection == "ascending") {
+      newUsersList = newUsersList.sort((a, b) => {
+        console.log("a: ", typeof a);
+        let fa, fb;
+
+        if (sortCategory != "company") {
+          fa = a[sortCategory].toString().toLowerCase();
+          fb = b[sortCategory].toString().toLowerCase();
+        } else {
+          fa = a[sortCategory].name.toString().toLowerCase();
+          fb = b[sortCategory].name.toString().toLowerCase();
+        }
+
+        if (fa < fb) {
+          return -1;
+        }
+        if (fa > fb) {
+          return 1;
+        }
+        return 0;
+      });
+    } else {
+      newUsersList = newUsersList.sort((b, a) => {
+        let fa, fb;
+
+        if (sortCategory != "company") {
+          fa = a[sortCategory].toString().toLowerCase();
+          fb = b[sortCategory].toString().toLowerCase();
+        } else {
+          fa = a[sortCategory].name.toString().toLowerCase();
+          fb = b[sortCategory].name.toString().toLowerCase();
+        }
+
+        if (fa < fb) {
+          return -1;
+        }
+        if (fa > fb) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    setUsersList(newUsersList);
+  };
+
+  useEffect(() => {
+    handleSort();
+  }, [sortCategory]);
+
+  useEffect(() => {
+    handleSort();
+  }, [sortDirection]);
+
+  useEffect(() => {
+    console.log(usersList);
+  }, []);
+
   return (
     <div className="user-gallery">
-      <h1 className="heading">Users</h1>
-      <div className="items">
-        {usersList.map((user, index) => (
-          <div
-            className="item user-card"
-            key={index}
-            onClick={() => handleModalOpen(user.id)}
-          >
-            <div className="body">
-              <Avatar
-                size={96}
-                name={user.name}
-                variant="marble"
-                colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
-              />
-            </div>
-            <div className="info">
-              <div className="name">{user.name}</div>
-              <div className="company">{user.company.name}</div>
-            </div>
+      <div className="test">
+        <div>
+          <h1 className="heading">Users</h1>
+        </div>
+        <div className="dropdowns">
+          <div>
+            <label for="sort-field">Sort Field: </label>
+            <select
+              name="sort-field"
+              id="sort-field"
+              onChange={(e) => {
+                handleChangeCategory(e);
+              }}
+            >
+              <option value="company">Company</option>
+              <option value="name">Name</option>
+              <option value="email">Email</option>
+            </select>
           </div>
-        ))}
+          <div>
+            <label for="sort-direction">Sort Direction: </label>
+            <select
+              name="sort-direction"
+              id="sort-direction"
+              onChange={(e) => {
+                handleChangeDirection(e);
+              }}
+            >
+              <option value="ascending">Ascending</option>
+              <option value="descending">Descending</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="items">
+        {usersList &&
+          usersList.map((user, index) => (
+            <div
+              className="item user-card"
+              key={index}
+              onClick={() => handleModalOpen(user.id)}
+            >
+              <div className="body">
+                <Avatar
+                  size={96}
+                  name={user.name}
+                  variant="marble"
+                  colors={[
+                    "#92A1C6",
+                    "#146A7C",
+                    "#F0AB3D",
+                    "#C271B4",
+                    "#C20D90",
+                  ]}
+                />
+              </div>
+              <div className="info">
+                <div className="name">{user.name}</div>
+                <div className="company">{user.company.name}</div>
+              </div>
+            </div>
+          ))}
         <Modal isOpen={isModalOpen} onClose={handleModalClose}>
           <div className="user-panel">
             <div className="header">
