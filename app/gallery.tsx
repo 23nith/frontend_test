@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
@@ -12,19 +12,21 @@ import {
 import Modal from "./modal";
 
 import { User } from "./types/user";
+import axios from "axios";
 
 export type GalleryProps = {
   users: User[];
 };
-const Gallery = ({ users }: GalleryProps) => {
-  const [usersList, setUsersList] = useState(users);
+
+const Gallery = () => {
+  const [usersList, setUsersList] = useState<GalleryProps[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleModalOpen = (id: number) => {
     const user = usersList.find((item) => item.id === id) || null;
 
-    if(user) {
+    if (user) {
       setSelectedUser(user);
       setIsModalOpen(true);
     }
@@ -35,30 +37,50 @@ const Gallery = ({ users }: GalleryProps) => {
     setIsModalOpen(false);
   };
 
+  const getUsersList = async () => {
+    await axios
+      .get("https://jsonplaceholder.typicode.com/users")
+      .then(function (response) {
+        setUsersList(response.data);
+      })
+      .catch(function (error) {});
+  };
+
+  useEffect(() => {
+    getUsersList();
+  }, []);
+
   return (
     <div className="user-gallery">
       <h1 className="heading">Users</h1>
       <div className="items">
-        {usersList.map((user, index) => (
-          <div
-            className="item user-card"
-            key={index}
-            onClick={() => handleModalOpen(user.id)}
-          >
-            <div className="body">
-              <Avatar
-                size={96}
-                name={user.name}
-                variant="marble"
-                colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
-              />
+        {usersList &&
+          usersList.map((user, index) => (
+            <div
+              className="item user-card"
+              key={index}
+              onClick={() => handleModalOpen(user.id)}
+            >
+              <div className="body">
+                <Avatar
+                  size={96}
+                  name={user.name}
+                  variant="marble"
+                  colors={[
+                    "#92A1C6",
+                    "#146A7C",
+                    "#F0AB3D",
+                    "#C271B4",
+                    "#C20D90",
+                  ]}
+                />
+              </div>
+              <div className="info">
+                <div className="name">{user.name}</div>
+                <div className="company">{user.company.name}</div>
+              </div>
             </div>
-            <div className="info">
-              <div className="name">{user.name}</div>
-              <div className="company">{user.company.name}</div>
-            </div>
-          </div>
-        ))}
+          ))}
         <Modal isOpen={isModalOpen} onClose={handleModalClose}>
           <div className="user-panel">
             <div className="header">
