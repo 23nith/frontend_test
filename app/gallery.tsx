@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
@@ -21,6 +21,8 @@ const Gallery = ({ users }: GalleryProps) => {
   const [usersList, setUsersList] = useState(users);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortCategory, setSortCategory] = useState<string>("company");
+  const [sortDirection, setSortDirection] = useState("ascending");
 
   const handleModalOpen = (id: number) => {
     const user = usersList.find((item) => item.id === id) || null;
@@ -36,11 +38,74 @@ const Gallery = ({ users }: GalleryProps) => {
     setIsModalOpen(false);
   };
 
+  const handleChangeCategory = (e) => {
+    setSortCategory(e.value);
+  };
+
+  const handleChangeDirection = (e) => {
+    setSortDirection(e.value);
+  };
+
+  const handleSort = () => {
+    let newUsersList = [...usersList];
+
+    if (sortDirection == "ascending") {
+      newUsersList = newUsersList.sort((a, b) => {
+        console.log("a: ", typeof a);
+        let fa, fb;
+
+        if (sortCategory != "company") {
+          fa = a[sortCategory].toString().toLowerCase();
+          fb = b[sortCategory].toString().toLowerCase();
+        } else {
+          fa = a[sortCategory].name.toString().toLowerCase();
+          fb = b[sortCategory].name.toString().toLowerCase();
+        }
+
+        if (fa < fb) {
+          return -1;
+        }
+        if (fa > fb) {
+          return 1;
+        }
+        return 0;
+      });
+    } else {
+      newUsersList = newUsersList.sort((b, a) => {
+        let fa, fb;
+
+        if (sortCategory != "company") {
+          fa = a[sortCategory].toString().toLowerCase();
+          fb = b[sortCategory].toString().toLowerCase();
+        } else {
+          fa = a[sortCategory].name.toString().toLowerCase();
+          fb = b[sortCategory].name.toString().toLowerCase();
+        }
+
+        if (fa < fb) {
+          return -1;
+        }
+        if (fa > fb) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    setUsersList(newUsersList);
+  };
+
+  useEffect(() => {
+    handleSort();
+  }, [sortCategory, sortDirection]);
+
   return (
     <div className="user-gallery">
       <div className="heading">
         <h1 className="title">Users</h1>
-        <Controls />
+        <Controls
+          handleChangeCategory={handleChangeCategory}
+          handleChangeDirection={handleChangeDirection}
+        />
       </div>
       <div className="items">
         {usersList.map((user, index) => (
